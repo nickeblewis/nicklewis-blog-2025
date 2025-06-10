@@ -14,7 +14,7 @@ tags:
 title: 'St James the less, Pangbourne'
 ---
 
-![](/public/images/R0001296.jpg)
+![](/images/R0001296.jpg)
 
 ![](/src/assets/images/R0001297.jpg)
 
