@@ -8,9 +8,9 @@ import { siteConfig } from './src/data/site.config'
 // https://astro.build/config
 export default defineConfig({
 	site: siteConfig.site,
-	// image: {
-	// 	service: passthroughImageService()
-	// },
+	image: {
+		service: passthroughImageService()
+	},
 	markdown: {
 		remarkPlugins: [remarkReadingTime],
 		drafts: true,

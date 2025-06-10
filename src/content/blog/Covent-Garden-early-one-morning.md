@@ -8,6 +8,8 @@ tags:
 title: Covent Garden early one morning
 ---
 
-![](/images/IMG_4864.JPEG)
+![](/src/assets/images/IMG_4864.JPEG)
+
 ![](/images/IMG_4861.JPEG)
+
 ![](/images/IMG_4865.JPEG)
