@@ -15,7 +15,7 @@ CONFIG_FILE="$SCRIPT_DIR/logseq-import.config"
 # Default values
 DEFAULT_CATEGORY="Journal"
 DEFAULT_DRAFT=false
-DEFAULT_HERO_IMAGE="../../assets/images/default-hero.jpg"
+DEFAULT_HERO_IMAGE="/images/default-hero.jpg"
 DRY_RUN=false
 VERBOSE=false
 
@@ -62,7 +62,7 @@ Arguments:
 Options:
     -c, --category      Default category for imported posts (default: Journal)
     -d, --draft         Import as draft posts (default: false)
-    -h, --hero-image    Default hero image path (default: ../../assets/images/default-hero.jpg)
+    -h, --hero-image    Default hero image path (default: /images/default-hero.jpg)
     -t, --tags          Comma-separated default tags to add to all posts
     -f, --filter        Only import files matching this pattern (regex)
     -e, --exclude       Exclude files matching this pattern (regex)
@@ -303,7 +303,7 @@ select_hero_image() {
                 log_verbose "Copied hero image: $new_image_name"
             fi
             
-            hero_image="../../assets/images/${new_image_name}"
+            hero_image="/images/${new_image_name}"
             log_verbose "Using content image as hero: $hero_image"
         fi
     else
@@ -311,7 +311,7 @@ select_hero_image() {
         local random_image=$(find "$BLOG_ASSETS_DIR" -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" -o -name "*.gif" | shuf -n 1 2>/dev/null | head -1 || true)
         
         if [[ -n "$random_image" && -f "$random_image" ]]; then
-            local relative_path="../../assets/images/$(basename "$random_image")"
+            local relative_path="/images/$(basename "$random_image")"
             hero_image="$relative_path"
             log_verbose "Using random fallback hero image: $hero_image"
         else

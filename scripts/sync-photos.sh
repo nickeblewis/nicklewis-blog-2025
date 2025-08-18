@@ -111,7 +111,7 @@ process_photos() {
     log "Processing downloaded photos..."
     
     # Find all downloaded photos
-    photos_count=$(find "$TEMP_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.heic" \) | wc -l)
+    photos_count=$(find "$TEMP_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.heic" -o -iname "*.arw" -o -iname "*.dng" -o -iname "*.nef" \) | wc -l)
     
     if [ "$photos_count" -eq 0 ]; then
         warn "No photos found to process"
@@ -120,20 +120,50 @@ process_photos() {
     
     log "Found $photos_count photos to process"
     
-    # Convert HEIC to JPEG if needed and copy to project
-    find "$TEMP_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.heic" \) | while read -r photo; do
+    # Convert RAW/HEIC to JPEG if needed and copy to project
+    find "$TEMP_DIR" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.heic" -o -iname "*.arw" -o -iname "*.dng" -o -iname "*.nef" \) | while read -r photo; do
         filename=$(basename "$photo")
         
-        # Convert HEIC to JPEG if necessary
+        # Convert RAW/HEIC to JPEG if necessary
         lowercase_filename=$(echo "$filename" | tr '[:upper:]' '[:lower:]')
-        # Convert HEIC to JPEG if necessary
+        
         if [[ "$lowercase_filename" == *.heic ]]; then
-            if command -v magick &> /dev/null; then
+            if command -v magick >&/dev/null; then
                 jpeg_name="${filename%.*}.jpg"
                 magick "$photo" "$target_dir/$jpeg_name"
-                log "Converted and copied: $jpeg_name"
+                log "Converted HEIC and copied: $jpeg_name"
             else
                 warn "ImageMagick not found. Skipping HEIC file: $filename"
+            fi
+        elif [[ "$lowercase_filename" == *.arw ]]; then
+            if command -v magick >&/dev/null; then
+                jpeg_name="${filename%.*}.jpg"
+                log "Converting Sony RAW (.arw) to JPEG: $filename"
+                # Sony RAW conversion with enhanced settings for better quality
+                magick "$photo" -auto-orient -colorspace sRGB -quality 95 "$target_dir/$jpeg_name"
+                log "Converted Sony RAW and copied: $jpeg_name"
+            else
+                warn "ImageMagick not found. Skipping Sony RAW file: $filename"
+            fi
+        elif [[ "$lowercase_filename" == *.dng ]]; then
+            if command -v magick >&/dev/null; then
+                jpeg_name="${filename%.*}.jpg"
+                log "Converting Adobe DNG to JPEG: $filename"
+                # Adobe DNG conversion with enhanced settings for better quality
+                magick "$photo" -auto-orient -colorspace sRGB -quality 95 "$target_dir/$jpeg_name"
+                log "Converted Adobe DNG and copied: $jpeg_name"
+            else
+                warn "ImageMagick not found. Skipping Adobe DNG file: $filename"
+            fi
+        elif [[ "$lowercase_filename" == *.nef ]]; then
+            if command -v magick >&/dev/null; then
+                jpeg_name="${filename%.*}.jpg"
+                log "Converting Nikon NEF to JPEG: $filename"
+                # Nikon NEF conversion with enhanced settings for better quality
+                magick "$photo" -auto-orient -colorspace sRGB -quality 95 "$target_dir/$jpeg_name"
+                log "Converted Nikon NEF and copied: $jpeg_name"
+            else
+                warn "ImageMagick not found. Skipping Nikon NEF file: $filename"
             fi
         else
             cp "$photo" "$target_dir/"
@@ -199,7 +229,7 @@ generate_blog_post() {
     if [ ${#new_photos[@]} -gt 0 ]; then
         local first_photo="${new_photos[0]}"
         local relative_path="${first_photo#$PROJECT_DIR/public/}"
-        hero_image="../../assets/images/$relative_path"
+        hero_image="/$relative_path"
     fi
     
     # Create the blog post
@@ -301,6 +331,10 @@ FEATURES:
     - Creates album-specific subfolders when downloading from named albums
     - Album names are sanitized for filesystem compatibility (lowercase, special chars become hyphens)
     - HEIC files are automatically converted to JPEG format
+    - RAW files are automatically converted to JPEG format with high quality settings:
+      • Sony Alpha RAW (.arw)
+      • Adobe Digital Negative (.dng)
+      • Nikon Electronic Format (.nef)
     - Images are optimized for web (resized to max 1920px, 85% quality)
     - Optional blog post generation with imported photos as markdown images
     - Generated posts include proper frontmatter and are marked as drafts
@@ -317,7 +351,8 @@ EXAMPLES:
 
 REQUIREMENTS:
     - icloudpd: pip install icloudpd
-    - ImageMagick (optional): for HEIC conversion and optimization
+    - ImageMagick (required): for HEIC/RAW conversion and optimization
+      Install with: brew install imagemagick
 EOF
 }
 
