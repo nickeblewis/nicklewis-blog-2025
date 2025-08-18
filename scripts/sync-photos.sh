@@ -8,7 +8,7 @@ set -e
 # Configuration
 APPLE_ID="${APPLE_ID:-}"
 PROJECT_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
-PHOTOS_DIR="$PROJECT_DIR/src/assets/images"
+PHOTOS_DIR="$PROJECT_DIR/public/images"
 TEMP_DIR="/tmp/icloud-photos-download"
 
 # Colors for output
@@ -198,8 +198,8 @@ generate_blog_post() {
     local hero_image=""
     if [ ${#new_photos[@]} -gt 0 ]; then
         local first_photo="${new_photos[0]}"
-        local relative_path="${first_photo#$PROJECT_DIR/}"
-        hero_image="/$relative_path"
+        local relative_path="${first_photo#$PROJECT_DIR/public/}"
+        hero_image="../../assets/images/$relative_path"
     fi
     
     # Create the blog post
@@ -222,8 +222,8 @@ EOF
     
     # Add all photos as markdown images
     for photo in "${new_photos[@]}"; do
-        local relative_path="${photo#$PROJECT_DIR/}"
-        local photo_path="/$relative_path"
+        local relative_path="${photo#$PROJECT_DIR/public/}"
+        local photo_path="/images/$relative_path"
         echo "![](${photo_path})" >> "$blog_file"
         echo "" >> "$blog_file"
     done
@@ -293,9 +293,9 @@ OPTIONS:
     -h, --help     Show this help message
 
 TYPE:
-    favorites      Download only favorite photos (default) - saves to src/assets/images/
-    all           Download all recent photos (last 90 days) - saves to src/assets/images/
-    "Album Name"  Download from specific album - creates subfolder src/assets/images/album-name/
+    favorites      Download only favorite photos (default) - saves to public/images/
+    all           Download all recent photos (last 90 days) - saves to public/images/
+    "Album Name"  Download from specific album - creates subfolder public/images/album-name/
 
 FEATURES:
     - Creates album-specific subfolders when downloading from named albums
@@ -309,11 +309,11 @@ ENVIRONMENT VARIABLES:
     APPLE_ID      Your Apple ID email (will prompt if not set)
 
 EXAMPLES:
-    $0                          # Download favorites to src/assets/images/
-    $0 favorites               # Download favorites to src/assets/images/
-    $0 all                     # Download all recent to src/assets/images/
-    $0 "My Trip Photos"        # Download to src/assets/images/my-trip-photos/
-    $0 "Family Events 2024"    # Download to src/assets/images/family-events-2024/
+    $0                          # Download favorites to public/images/
+    $0 favorites               # Download favorites to public/images/
+    $0 all                     # Download all recent to public/images/
+    $0 "My Trip Photos"        # Download to public/images/my-trip-photos/
+    $0 "Family Events 2024"    # Download to public/images/family-events-2024/
 
 REQUIREMENTS:
     - icloudpd: pip install icloudpd

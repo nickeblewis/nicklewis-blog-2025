@@ -9,13 +9,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 BLOG_CONTENT_DIR="$PROJECT_ROOT/src/content/blog"
-BLOG_ASSETS_DIR="$PROJECT_ROOT/src/assets/images"
+BLOG_ASSETS_DIR="$PROJECT_ROOT/public/images"
 CONFIG_FILE="$SCRIPT_DIR/logseq-import.config"
 
 # Default values
 DEFAULT_CATEGORY="Journal"
 DEFAULT_DRAFT=false
-DEFAULT_HERO_IMAGE="/src/assets/images/default-hero.jpg"
+DEFAULT_HERO_IMAGE="../../assets/images/default-hero.jpg"
 DRY_RUN=false
 VERBOSE=false
 
@@ -62,7 +62,7 @@ Arguments:
 Options:
     -c, --category      Default category for imported posts (default: Journal)
     -d, --draft         Import as draft posts (default: false)
-    -h, --hero-image    Default hero image path (default: /src/assets/images/default-hero.jpg)
+    -h, --hero-image    Default hero image path (default: ../../assets/images/default-hero.jpg)
     -t, --tags          Comma-separated default tags to add to all posts
     -f, --filter        Only import files matching this pattern (regex)
     -e, --exclude       Exclude files matching this pattern (regex)
@@ -303,7 +303,7 @@ select_hero_image() {
                 log_verbose "Copied hero image: $new_image_name"
             fi
             
-            hero_image="/src/assets/images/${new_image_name}"
+            hero_image="../../assets/images/${new_image_name}"
             log_verbose "Using content image as hero: $hero_image"
         fi
     else
@@ -311,7 +311,7 @@ select_hero_image() {
         local random_image=$(find "$BLOG_ASSETS_DIR" -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -o -name "*.webp" -o -name "*.gif" | shuf -n 1 2>/dev/null | head -1 || true)
         
         if [[ -n "$random_image" && -f "$random_image" ]]; then
-            local relative_path="/src/assets/images/$(basename "$random_image")"
+            local relative_path="../../assets/images/$(basename "$random_image")"
             hero_image="$relative_path"
             log_verbose "Using random fallback hero image: $hero_image"
         else
@@ -381,7 +381,7 @@ process_images() {
                 fi
                 
                 # Update content with new image reference
-                local new_image_ref="![${alt_text}](/src/assets/images/${new_image_name})"
+                local new_image_ref="![${alt_text}](/images/${new_image_name})"
                 processed_content=${processed_content//$image_ref/$new_image_ref}
                 
                 ((image_counter++))
@@ -422,7 +422,7 @@ process_images() {
                 
                 # Convert to standard markdown format
                 local alt_text=$(basename "$image_path" ".${image_ext}")
-                local new_image_ref="![${alt_text}](/src/assets/images/${new_image_name})"
+                local new_image_ref="![${alt_text}](/images/${new_image_name})"
                 processed_content=${processed_content//$logseq_ref/$new_image_ref}
                 
                 ((image_counter++))
@@ -458,11 +458,11 @@ convert_content() {
     content=$(process_images "$content" "$(dirname "$file")")
     
     # Fix any remaining relative image paths that weren't caught by process_images
-    # Convert ./src/assets/images/ to /src/assets/images/
-    content=$(echo "$content" | sed 's|\./src/assets/images/|/src/assets/images/|g')
-    # Convert ./assets/image.jpg to /src/assets/images/image.jpg
-    content=$(echo "$content" | sed 's|\./assets/|/src/assets/images/|g')
-    content=$(echo "$content" | sed 's|\.\./assets/|/src/assets/images/|g')
+    # Convert ./public/images/ to /images/
+    content=$(echo "$content" | sed 's|\./public/images/|/images/|g')
+    # Convert ./assets/image.jpg to /images/image.jpg
+    content=$(echo "$content" | sed 's|\./assets/|/images/|g')
+    content=$(echo "$content" | sed 's|\.\./assets/|/images/|g')
     
     echo "$content"
 }
