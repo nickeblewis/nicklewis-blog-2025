@@ -1,0 +1,2 @@
+# Requirements for iCloud photo sync functionality
+icloudpd>=1.17.0
