@@ -1,0 +1,30 @@
+# Configuration file for import-from-logseq.sh
+# Copy this file to logseq-import.config and modify as needed
+
+# Default category for imported posts
+DEFAULT_CATEGORY="Journal"
+
+# Default hero image (relative to src/assets/images/)
+DEFAULT_HERO_IMAGE="../../assets/images/default-hero.jpg"
+
+# Default draft status
+DEFAULT_DRAFT=false
+
+# Category mapping from Logseq tags to blog categories
+# Format: "logseq-tag:blog-category,another-tag:another-category"
+CATEGORY_MAPPING="programming:Coding,dev:Coding,music:Music,photo:Photography,crypto:Crypto,history:History"
+
+# Tag mapping for renaming tags during import
+# Format: "old-tag:new-tag,another:mapped"
+TAG_MAPPING="js:javascript,ts:typescript,react:reactjs"
+
+# Default tags to add to all imported posts
+DEFAULT_TAGS="logseq,imported"
+
+# Patterns to exclude files (regex)
+# Example: EXCLUDE_PATTERNS="private|draft|temp"
+EXCLUDE_PATTERNS=""
+
+# Patterns to only include files (regex)
+# Example: INCLUDE_PATTERNS="blog|public|published"
+INCLUDE_PATTERNS=""

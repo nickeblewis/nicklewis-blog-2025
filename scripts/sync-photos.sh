@@ -8,7 +8,7 @@ set -e
 # Configuration
 APPLE_ID="${APPLE_ID:-}"
 PROJECT_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
-PHOTOS_DIR="$PROJECT_DIR/public/images"
+PHOTOS_DIR="$PROJECT_DIR/src/assets/images"
 TEMP_DIR="/tmp/icloud-photos-download"
 
 # Colors for output
@@ -88,8 +88,26 @@ download_photos() {
     esac
 }
 
+# Sanitize album name for filesystem use
+sanitize_album_name() {
+    local album_name="$1"
+    # Remove/replace problematic characters and convert to lowercase
+    echo "$album_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9.-]/-/g' | sed 's/--*/-/g' | sed 's/^-\|-$//g'
+}
+
 # Process and move photos to project
 process_photos() {
+    local download_type="${1:-all}"
+    local target_dir="$PHOTOS_DIR"
+    
+    # Create album subfolder if album name is provided
+    if [[ "$download_type" != "all" && "$download_type" != "favorites" ]]; then
+        local sanitized_album=$(sanitize_album_name "$download_type")
+        target_dir="$PHOTOS_DIR/$sanitized_album"
+        mkdir -p "$target_dir"
+        log "Created album folder: $target_dir"
+    fi
+    
     log "Processing downloaded photos..."
     
     # Find all downloaded photos
@@ -107,16 +125,18 @@ process_photos() {
         filename=$(basename "$photo")
         
         # Convert HEIC to JPEG if necessary
-        if [[ "${filename,,}" == *.heic ]]; then
+        lowercase_filename=$(echo "$filename" | tr '[:upper:]' '[:lower:]')
+        # Convert HEIC to JPEG if necessary
+        if [[ "$lowercase_filename" == *.heic ]]; then
             if command -v magick &> /dev/null; then
                 jpeg_name="${filename%.*}.jpg"
-                magick "$photo" "$PHOTOS_DIR/$jpeg_name"
+                magick "$photo" "$target_dir/$jpeg_name"
                 log "Converted and copied: $jpeg_name"
             else
                 warn "ImageMagick not found. Skipping HEIC file: $filename"
             fi
         else
-            cp "$photo" "$PHOTOS_DIR/"
+            cp "$photo" "$target_dir/"
             log "Copied: $filename"
         fi
     done
@@ -136,6 +156,99 @@ optimize_images() {
     fi
 }
 
+# Generate a blog post draft with imported photos
+generate_blog_post() {
+    local download_type="${1:-all}"
+    local target_dir="$PHOTOS_DIR"
+    local blog_dir="$PROJECT_DIR/src/content/blog"
+    
+    # Determine the target directory for photos
+    if [[ "$download_type" != "all" && "$download_type" != "favorites" ]]; then
+        local sanitized_album=$(sanitize_album_name "$download_type")
+        target_dir="$PHOTOS_DIR/$sanitized_album"
+    fi
+    
+    # Find photos that were just added (newer than temp dir)
+    local new_photos=()
+    while IFS= read -r -d '' photo; do
+        new_photos+=("$photo")
+    done < <(find "$target_dir" -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) -newer "$TEMP_DIR" -print0 2>/dev/null)
+    
+    if [ ${#new_photos[@]} -eq 0 ]; then
+        log "No new photos found, skipping blog post generation"
+        return
+    fi
+    
+    # Generate timestamp-based filename
+    local timestamp=$(date +'%Y-%m-%d-%H-%M-%S')
+    local random_suffix=$(openssl rand -hex 3 2>/dev/null || echo "$(date +%s | tail -c 6)")
+    local blog_filename="$timestamp-$random_suffix.md"
+    local blog_file="$blog_dir/$blog_filename"
+    
+    # Determine title and category
+    local title
+    local category="Photography"
+    if [[ "$download_type" != "all" && "$download_type" != "favorites" ]]; then
+        title="$download_type"
+    else
+        title="Photo Collection - $(date +'%B %d, %Y')"
+    fi
+    
+    # Generate hero image (first photo) with correct path
+    local hero_image=""
+    if [ ${#new_photos[@]} -gt 0 ]; then
+        local first_photo="${new_photos[0]}"
+        local relative_path="${first_photo#$PROJECT_DIR/}"
+        hero_image="/$relative_path"
+    fi
+    
+    # Create the blog post
+    cat > "$blog_file" << EOF
+---
+heroImage: $hero_image
+category: $category
+description: Generated from iCloud photo sync - edit this description
+pubDate: $(date -u +'%Y-%m-%dT%H:%M:%S.000Z')
+tags:
+  - photos
+  - imported
+title: $title
+draft: true
+---
+
+<!-- Edit this content and remove the draft flag when ready to publish -->
+
+EOF
+    
+    # Add all photos as markdown images
+    for photo in "${new_photos[@]}"; do
+        local relative_path="${photo#$PROJECT_DIR/}"
+        local photo_path="/$relative_path"
+        echo "![](${photo_path})" >> "$blog_file"
+        echo "" >> "$blog_file"
+    done
+    
+    # Add some placeholder content
+    cat >> "$blog_file" << EOF
+
+<!-- Add your content here -->
+
+This post contains ${#new_photos[@]} photos imported from iCloud.
+
+<!-- Remember to:
+- Edit the title and description
+- Add meaningful content
+- Update tags as needed
+- Remove the draft flag when ready
+- Consider adding alt text to images
+-->
+EOF
+    
+    log "Generated blog post: $blog_file"
+    log "Photos included: ${#new_photos[@]}"
+    log "Remember to edit the post content and remove 'draft: true' when ready to publish!"
+}
+
 # Cleanup
 cleanup() {
     log "Cleaning up temporary files..."
@@ -153,8 +266,16 @@ main() {
     setup_directories
     
     download_photos "$download_type"
-    process_photos
+    process_photos "$download_type"
     optimize_images
+    
+    # Ask user if they want to generate a blog post
+    echo
+    read -p "Would you like to generate a blog post draft with the imported photos? (y/N): " -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        generate_blog_post "$download_type"
+    fi
+    
     cleanup
     
     log "Photo sync completed! Check $PHOTOS_DIR for your photos."
@@ -172,18 +293,27 @@ OPTIONS:
     -h, --help     Show this help message
 
 TYPE:
-    favorites      Download only favorite photos (default)
-    all           Download all recent photos (last 90 days)
-    "Album Name"  Download from specific album
+    favorites      Download only favorite photos (default) - saves to src/assets/images/
+    all           Download all recent photos (last 90 days) - saves to src/assets/images/
+    "Album Name"  Download from specific album - creates subfolder src/assets/images/album-name/
+
+FEATURES:
+    - Creates album-specific subfolders when downloading from named albums
+    - Album names are sanitized for filesystem compatibility (lowercase, special chars become hyphens)
+    - HEIC files are automatically converted to JPEG format
+    - Images are optimized for web (resized to max 1920px, 85% quality)
+    - Optional blog post generation with imported photos as markdown images
+    - Generated posts include proper frontmatter and are marked as drafts
 
 ENVIRONMENT VARIABLES:
     APPLE_ID      Your Apple ID email (will prompt if not set)
 
 EXAMPLES:
-    $0                          # Download favorites
-    $0 favorites               # Download favorites
-    $0 all                     # Download all recent
-    $0 "My Trip Photos"        # Download from specific album
+    $0                          # Download favorites to src/assets/images/
+    $0 favorites               # Download favorites to src/assets/images/
+    $0 all                     # Download all recent to src/assets/images/
+    $0 "My Trip Photos"        # Download to src/assets/images/my-trip-photos/
+    $0 "Family Events 2024"    # Download to src/assets/images/family-events-2024/
 
 REQUIREMENTS:
     - icloudpd: pip install icloudpd
