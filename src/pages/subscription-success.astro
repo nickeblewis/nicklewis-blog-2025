@@ -1,0 +1,140 @@
+---
+import BaseLayout from '@/layouts/BaseLayout'
+import TitlePage from '@/components/TitlePage'
+import { siteConfig } from '@/site-config'
+---
+
+<BaseLayout title='Subscription Success' description='Thank you for subscribing to the newsletter!'>
+	<div class='max-w-2xl mx-auto text-center py-12'>
+		<div class='mb-8'>
+			<!-- Success Icon -->
+			<div
+				class='mx-auto w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mb-6'
+			>
+				<svg
+					class='w-8 h-8 text-green-600 dark:text-green-400'
+					fill='none'
+					stroke='currentColor'
+					viewBox='0 0 24 24'
+					xmlns='http://www.w3.org/2000/svg'
+				>
+					<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'
+					></path>
+				</svg>
+			</div>
+
+			<h1 class='text-3xl font-bold text-gray-900 dark:text-white mb-4'>You're All Set! 🎉</h1>
+
+			<p class='text-lg text-gray-600 dark:text-gray-300 mb-6'>
+				Thank you for subscribing to my newsletter. You'll receive updates about new posts on web
+				development, photography, music, and personal insights.
+			</p>
+		</div>
+
+		<div
+			class='bg-blue-50 dark:bg-blue-900/20 rounded-lg p-6 mb-8 border border-blue-200 dark:border-blue-800'
+		>
+			<h2 class='text-xl font-semibold text-blue-900 dark:text-blue-100 mb-3'>What's Next?</h2>
+			<ul class='text-blue-800 dark:text-blue-200 space-y-2 text-left max-w-md mx-auto'>
+				<li class='flex items-start'>
+					<svg
+						class='w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-2 flex-shrink-0'
+						fill='currentColor'
+						viewBox='0 0 20 20'
+					>
+						<path
+							fill-rule='evenodd'
+							d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+							clip-rule='evenodd'></path>
+					</svg>
+					Check your email for a confirmation message
+				</li>
+				<li class='flex items-start'>
+					<svg
+						class='w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-2 flex-shrink-0'
+						fill='currentColor'
+						viewBox='0 0 20 20'
+					>
+						<path
+							fill-rule='evenodd'
+							d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+							clip-rule='evenodd'></path>
+					</svg>
+					Click the confirmation link to complete your subscription
+				</li>
+				<li class='flex items-start'>
+					<svg
+						class='w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 mr-2 flex-shrink-0'
+						fill='currentColor'
+						viewBox='0 0 20 20'
+					>
+						<path
+							fill-rule='evenodd'
+							d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+							clip-rule='evenodd'></path>
+					</svg>
+					Add my email to your contacts to avoid spam filters
+				</li>
+			</ul>
+		</div>
+
+		<div class='space-y-4'>
+			<p class='text-gray-600 dark:text-gray-300'>
+				While you're here, why not explore some of my latest content?
+			</p>
+
+			<div class='flex flex-col sm:flex-row gap-4 justify-center'>
+				<a
+					href='/'
+					class='inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200'
+				>
+					← Back to Home
+				</a>
+
+				<a
+					href='/post'
+					class='inline-flex items-center px-6 py-3 border border-gray-300 dark:border-gray-600 text-base font-medium rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200'
+				>
+					Browse All Posts →
+				</a>
+			</div>
+		</div>
+
+		<div class='mt-12 pt-8 border-t border-gray-200 dark:border-gray-700'>
+			<p class='text-sm text-gray-500 dark:text-gray-400'>
+				Questions or feedback? Feel free to
+				<a
+					href='mailto:hello@nicklewis.blog'
+					class='text-blue-600 dark:text-blue-400 hover:underline'
+				>
+					get in touch
+				</a>
+			</p>
+		</div>
+	</div>
+</BaseLayout>
+
+<script>
+	import { animate } from 'motion'
+
+	// Add subtle animations if enabled
+	const showAnimations = localStorage.getItem('animations') === 'true'
+
+	if (showAnimations) {
+		// Animate the success icon
+		animate(
+			'.bg-green-100, .dark\\:bg-green-900',
+			{ scale: [0.8, 1.1, 1], opacity: [0, 1] },
+			{ duration: 0.6, delay: 0.2 }
+		)
+
+		// Animate the main content
+		animate('h1', { y: [20, 0], opacity: [0, 1] }, { duration: 0.8, delay: 0.4 })
+
+		// Animate the description
+		animate('p', { y: [20, 0], opacity: [0, 1] }, { duration: 0.8, delay: 0.6 })
+
+		// Animate the action buttons
+		animate('.inline-flex', { y: [20, 0], opacity: [0, 1] }, { duration: 0.6, delay: 0.8 })
+	}
+</script>

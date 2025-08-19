@@ -1,0 +1,89 @@
+---
+type Props = {
+	buttondownUrl?: string
+	title?: string
+	description?: string
+	placeholder?: string
+	buttonText?: string
+}
+
+const {
+	buttondownUrl = 'https://buttondown.email/api/emails/embed-subscribe/nickeblewis',
+	title = 'Stay Updated',
+	description = 'Get notified when I publish new posts about web development, photography, and music.',
+	placeholder = 'Enter your email address',
+	buttonText = 'Subscribe'
+} = Astro.props
+---
+
+<div
+	class='bg-gray-50 dark:bg-gray-800 rounded-lg p-6 my-8 border border-gray-200 dark:border-gray-700'
+>
+	<div class='max-w-md mx-auto text-center'>
+		<h3 class='text-xl font-semibold text-gray-900 dark:text-white mb-2'>
+			{title}
+		</h3>
+		<p class='text-gray-600 dark:text-gray-300 mb-6 text-sm'>
+			{description}
+		</p>
+
+		<form action={buttondownUrl} method='post' class='space-y-4' id='newsletter-form'>
+			<!-- Hidden field to redirect to our custom success page -->
+			<input type='hidden' name='next' value='https://nicklewis.blog/subscription-success' />
+
+			<div class='flex flex-col sm:flex-row gap-3'>
+				<input
+					type='email'
+					name='email'
+					placeholder={placeholder}
+					required
+					class='flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors'
+				/>
+				<button
+					type='submit'
+					class='px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800'
+				>
+					{buttonText}
+				</button>
+			</div>
+
+			<p class='text-xs text-gray-500 dark:text-gray-400'>
+				No spam, unsubscribe anytime. Powered by
+				<a
+					href='https://buttondown.email'
+					target='_blank'
+					rel='noopener noreferrer'
+					class='text-blue-600 dark:text-blue-400 hover:underline'
+				>
+					Buttondown
+				</a>
+			</p>
+		</form>
+	</div>
+</div>
+
+<script>
+	// Add form submission handling for better UX
+	document.addEventListener('DOMContentLoaded', function () {
+		const form = document.querySelector('form[action*="buttondown.email"]')
+		if (form) {
+			form.addEventListener('submit', function (e) {
+				const submitButton = form.querySelector('button[type="submit"]')
+				const originalText = submitButton.textContent
+
+				// Show loading state
+				submitButton.textContent = 'Subscribing...'
+				submitButton.disabled = true
+
+				// Reset button after a delay (whether successful or not)
+				setTimeout(() => {
+					submitButton.textContent = 'Thank you!'
+					setTimeout(() => {
+						submitButton.textContent = originalText
+						submitButton.disabled = false
+					}, 2000)
+				}, 1000)
+			})
+		}
+	})
+</script>
