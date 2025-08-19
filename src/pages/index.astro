@@ -14,12 +14,12 @@ const posts = await getPosts(MAX_POSTS)
 <BaseLayout title='Home'>
 	<TitlePage title={siteConfig.title} />
 	<ListCategories />
-	<ButtondownSubscription />
 
 	<div>
 		<h2 class='text-lg font-medium tracking-wide text-end'>Latest Posts</h2>
 		<ListPosts FirstBig={true} posts={posts} />
 	</div>
+	<ButtondownSubscription />
 </BaseLayout>
 
 <script>
