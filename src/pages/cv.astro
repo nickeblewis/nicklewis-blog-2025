@@ -1,0 +1,33 @@
+---
+import BaseLayout from '@/layouts/BaseLayout'
+import { fetchCvData } from '@/lib/hygraph'
+
+const cvs = await fetchCvData()
+const toArray = <T,>(val: T | T[]): T[] => (Array.isArray(val) ? val : [val])
+---
+
+<BaseLayout title='CV'>
+	<h1 class='text-2xl font-bold mb-4'>CV</h1>
+	{cvs.length === 0 && <p>No CV data available.</p>}
+	{
+		cvs.map((cv) => (
+			<div>
+				<h2 class='text-xl font-semibold mb-4'>{cv.name}</h2>
+				{toArray(cv.jobRoles).map((role) => (
+					<section class='mb-6'>
+						<h3 class='text-lg font-medium'>{role.jobTitle}</h3>
+						<p>{role.companyName}</p>
+						<p class='text-sm text-gray-500'>{role.yearsOfService}</p>
+						{role.skill && role.skill.length > 0 && (
+							<ul class='list-disc list-inside mt-2'>
+								{role.skill.map((s) => (
+									<li>{s}</li>
+								))}
+							</ul>
+						)}
+					</section>
+				))}
+			</div>
+		))
+	}
+</BaseLayout>
