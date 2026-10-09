@@ -1,0 +1,101 @@
+{
+	"version": "8",
+	"dialect": "postgres",
+	"id": "40824282-0fdc-4040-93e7-5579de50c617",
+	"prevIds": ["00000000-0000-0000-0000-000000000000"],
+	"ddl": [
+		{
+			"isRlsEnabled": false,
+			"name": "demo",
+			"entityType": "tables",
+			"schema": "public"
+		},
+		{
+			"type": "serial",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "id",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "demo"
+		},
+		{
+			"type": "text",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "name",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "demo"
+		},
+		{
+			"type": "text",
+			"typeSchema": null,
+			"notNull": false,
+			"dimensions": 0,
+			"default": null,
+			"generated": null,
+			"identity": null,
+			"name": "description",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "demo"
+		},
+		{
+			"type": "numeric(10,2)",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": "'0'",
+			"generated": null,
+			"identity": null,
+			"name": "price",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "demo"
+		},
+		{
+			"type": "timestamp with time zone",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": "now()",
+			"generated": null,
+			"identity": null,
+			"name": "created_at",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "demo"
+		},
+		{
+			"type": "timestamp with time zone",
+			"typeSchema": null,
+			"notNull": true,
+			"dimensions": 0,
+			"default": "now()",
+			"generated": null,
+			"identity": null,
+			"name": "updated_at",
+			"entityType": "columns",
+			"schema": "public",
+			"table": "demo"
+		},
+		{
+			"columns": ["id"],
+			"nameExplicit": false,
+			"name": "demo_pkey",
+			"schema": "public",
+			"table": "demo",
+			"entityType": "pks"
+		}
+	],
+	"renames": []
+}
